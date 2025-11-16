@@ -51,6 +51,21 @@ jobs:
             echo "public/index.html not present"
           fi
 
+      - name: Ensure Pages site exists (create if missing)
+        run: |
+          echo "Ensuring GitHub Pages resource exists for this repo..."
+          OWNER=${{ github.repository_owner }}
+          REPO=${{ github.event.repository.name }}
+          TOKEN="${{ env.PAGES_PAT }}"
+          if [ -z "$TOKEN" ]; then
+            TOKEN="${{ secrets.GITHUB_TOKEN }}"
+          fi
+          API_URL="https://api.github.com/repos/${OWNER}/${REPO}/pages"
+          echo "PUT ${API_URL} -> branch: gh-pages, path: /"
+          HTTP_STATUS=$(curl -s -o /tmp/pages_put.json -w "%{http_code}" -X PUT -H "Authorization: token ${TOKEN}" -H "Accept: application/vnd.github+json" -d '{"source":{"branch":"gh-pages","path":"/"}}' "$API_URL") || true
+          echo "HTTP status: $HTTP_STATUS"
+          echo "Response:"; cat /tmp/pages_put.json || true
+
       - name: Deploy to gh-pages (use PAT if available)
         uses: peaceiris/actions-gh-pages@v3
         if: ${{ env.PAGES_PAT != '' }}
