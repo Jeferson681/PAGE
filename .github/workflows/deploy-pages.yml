@@ -12,6 +12,8 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      PAGES_PAT: ${{ secrets.PAGES_PAT }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -49,9 +51,39 @@ jobs:
             echo "public/index.html not present"
           fi
 
-      - name: Deploy to gh-pages
+      - name: Deploy to gh-pages (use PAT if available)
         uses: peaceiris/actions-gh-pages@v3
+        if: ${{ env.PAGES_PAT != '' }}
+        with:
+          github_token: ${{ env.PAGES_PAT }}
+          publish_dir: ./public
+          publish_branch: gh-pages
+
+      - name: Deploy to gh-pages (fallback to GITHUB_TOKEN)
+        uses: peaceiris/actions-gh-pages@v3
+        if: ${{ env.PAGES_PAT == '' }}
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./public
           publish_branch: gh-pages
+
+      - name: Verify Pages site
+        run: |
+          echo "Checking Pages status via GitHub API..."
+          OWNER=${{ github.repository_owner }}
+          REPO=${{ github.event.repository.name }}
+          TOKEN="${{ env.PAGES_PAT }}"
+          if [ -z "$TOKEN" ]; then
+            TOKEN="${{ secrets.GITHUB_TOKEN }}"
+          fi
+          API_URL="https://api.github.com/repos/${OWNER}/${REPO}/pages"
+          echo "GET ${API_URL}"
+          HTTP_STATUS=$(curl -s -o /tmp/pages.json -w "%{http_code}" -H "Authorization: token ${TOKEN}" -H "Accept: application/vnd.github+json" "$API_URL") || true
+          echo "HTTP status: $HTTP_STATUS"
+          if [ "$HTTP_STATUS" -ne 200 ]; then
+            echo "Pages resource not available yet or token lacks permission. Dumping response:";
+            cat /tmp/pages.json || true
+            exit 0
+          fi
+          echo "Pages resource exists — response:";
+          jq -r '.html_url' /tmp/pages.json || cat /tmp/pages.json || true
