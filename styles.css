@@ -103,6 +103,23 @@ section { margin-bottom: 2.5rem; }
 /* SVG sizing for theme icon */
 .theme-toggle svg { width: 1.25rem; height: 1.25rem; display: inline-block; vertical-align: middle; }
 
+/* Download CV button (header) */
+.btn { display: inline-block; text-decoration: none; padding: .45rem .75rem; border-radius: 8px; font-weight: 600; }
+.btn-download {
+  position: absolute;
+  right: 4.25rem;
+  top: 0.9rem;
+  background: var(--accent);
+  color: #fff;
+  border: 1px solid rgba(0,0,0,0.05);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+.btn-download:hover { filter: brightness(0.95); }
+
+@media (max-width: 720px) {
+  .btn-download { right: 3.5rem; top: .6rem; padding: .35rem .6rem; font-size: .95rem; }
+}
+
 /* ------------------------------ */
 /* LISTS / PILL                 */
 /* ------------------------------ */
