@@ -285,7 +285,7 @@ p, .summary, .project p, ul.process-list, ul.contact-list { padding: 0 1rem; }
   p, .summary, .project p, ul.process-list, ul.contact-list { padding: 0 2rem; }
 }
 
-/* Lists (skills, processes, próximos passos) left-aligned */
+/* Lists (skills, processes, Próximos Passos) left-aligned */
 ul.tag-list, ul.process-list, ul.contact-list { text-align: left; }
 
 /* Center project cards inside the grid while keeping card content left-aligned */
